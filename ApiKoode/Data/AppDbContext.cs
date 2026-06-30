@@ -12,5 +12,12 @@ namespace ApiKoode.Data
                   optionsBuilder.UseSqlite("Data Source=app.db");
                   base.OnConfiguring(optionsBuilder);
             }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                  modelBuilder.Entity<Tarefa>()
+                      .Property(t => t.Status)
+                      .HasConversion<string>();
+            }
       }
 }
