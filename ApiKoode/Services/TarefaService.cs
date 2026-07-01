@@ -40,17 +40,17 @@ public class TarefaService
             return tarefa;
       }
 
-      public async Task<Tarefa?> UpdateTarefaAsync(Guid id, CreateTarefaDto dto)
+      public async Task<Tarefa?> UpdateTarefaAsync(Guid id, UpdateTarefaDto dto)
       {
             var tarefa = await _db.Tarefas.FindAsync(id);
-            if (tarefa == null)
+            if (tarefa == null || tarefa.Status == StatusTarefa.done)
             {
                   return null;
             }
 
-            tarefa.Title = dto.Title;
-            tarefa.Description = dto.Description;
-            tarefa.Status = dto.Status;
+            if (dto.Title is not null) tarefa.Title = dto.Title;
+            if (dto.Description is not null) tarefa.Description = dto.Description;
+            if (dto.Status is not null) tarefa.Status = dto.Status.Value;
             tarefa.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();

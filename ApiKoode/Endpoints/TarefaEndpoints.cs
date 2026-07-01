@@ -27,7 +27,7 @@ public static class TarefasRoutes
             return Results.Created($"/tasks/{tarefa.Id}", tarefa);
       }
 
-      private static async Task<IResult> UpdateTarefa(TarefaService service, Guid id, CreateTarefaDto dto)
+      private static async Task<IResult> UpdateTarefa(TarefaService service, Guid id, UpdateTarefaDto dto)
       {
             var tarefa = await service.UpdateTarefaAsync(id, dto);
             if (tarefa == null)

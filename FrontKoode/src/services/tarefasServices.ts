@@ -1,3 +1,5 @@
+import type { StatusTarefa } from "../types/tarefa";
+
 export const getTasks = async () => {
   try {
     const tasks = await fetch("http://localhost:5191/tasks");
@@ -9,7 +11,7 @@ export const getTasks = async () => {
   }
 };
 
-export const createTask = async (task: { title: string; description: string; status: string }) => {
+export const createTask = async (task: { title: string; description: string; status: StatusTarefa }) => {
   try {
     const response = await fetch("http://localhost:5191/tasks", {
       method: "POST",
@@ -26,15 +28,27 @@ export const createTask = async (task: { title: string; description: string; sta
   }
 };
 
-export const deleteTask = async (id: number) => {
+export const updateTask = async (id: string, task: { title: string; description: string; status: StatusTarefa }) => {
+  const response = await fetch(`http://localhost:5191/tasks/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(task),
+  });
+  const data = await response.json();
+  return data;
+};
+
+export const deleteTask = async (id: string) => {
   const response = await fetch(`http://localhost:5191/tasks/${id}`, {
     method: "DELETE",
   });
   return response.ok;
 };
 
-export const finishTask = async (id: number) => {
-  const task = { status: "Concluída" };
+export const finishTask = async (id: string) => {
+  const task: { status: StatusTarefa } = { status: "done" };
   const response = await fetch(`http://localhost:5191/tasks/${id}`, {
     method: "PUT",
     headers: {

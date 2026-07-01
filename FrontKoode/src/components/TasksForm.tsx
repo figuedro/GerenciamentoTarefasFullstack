@@ -1,22 +1,33 @@
 import { useEffect, useState } from "react";
-import { createTask } from "../services/tarefasServices";
-import type { Tarefa } from "../types/tarefa";
+import { createTask, updateTask } from "../services/tarefasServices";
+import type { StatusTarefa, Tarefa } from "../types/tarefa";
 
-export function TarefasForm({ editingTarefa }: { editingTarefa: Tarefa | null }) {
+export function TarefasForm({
+  editingTarefa,
+  onTaskCreated,
+}: {
+  editingTarefa: Tarefa | null;
+  onTaskCreated?: () => void;
+}) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("Pendente");
-  // const [isEditing, setIsEditing] = useState(false);
+  const [status, setStatus] = useState<StatusTarefa>("pending");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    await createTask({ title, description, status });
+    if (editingTarefa) {
+      await updateTask(editingTarefa.id, { title, description, status });
+    } else {
+      await createTask({ title, description, status });
+    }
     setTitle("");
     setDescription("");
-    setStatus("Pendente");
+    setStatus("pending");
+
     setIsLoading(false);
+    onTaskCreated?.();
   };
 
   useEffect(() => {
@@ -29,40 +40,45 @@ export function TarefasForm({ editingTarefa }: { editingTarefa: Tarefa | null })
 
   return (
     <>
-      <form className="flex flex-col gap-4 p-10 bg-gray-800 rounded-lg" onSubmit={handleSubmit}>
-        <h1 className="text-2xl text-orange-400">Criar Tarefa</h1>
+      <form
+        className="flex w-full max-w-md flex-col gap-4 rounded-lg bg-gray-800 p-6 sm:max-w-lg sm:p-10"
+        onSubmit={handleSubmit}
+      >
+        <h1 className="text-2xl text-orange-400">
+          {editingTarefa ? "Atualizar Tarefa" : "Criar Tarefa"}
+        </h1>
 
         <input
           type="text"
           placeholder="Título"
-          className="bg-gray-600 text-white placeholder:text-gray-400 border border-gray-500 "
+          className="w-full border border-gray-500 bg-gray-600 text-white placeholder:text-gray-400"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
         <input
           type="text"
           placeholder="Descrição"
-          className="bg-gray-600 text-white placeholder:text-gray-400 border border-gray-500"
+          className="w-full border border-gray-500 bg-gray-600 text-white placeholder:text-gray-400"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
         <select
-          className="bg-gray-600 text-white placeholder:text-gray-400 border border-gray-500"
+          className="w-full border border-gray-500 bg-gray-600 text-white placeholder:text-gray-400"
           value={status}
-          onChange={(e) => setStatus(e.target.value)}
+          onChange={(e) => setStatus(e.target.value as StatusTarefa)}
         >
-          <option value="Pendente">Pendente</option>
-          <option value="Em Progresso">Em Progresso</option>
-          <option value="Concluída">Concluída</option>
+          <option value="pending">Pendente</option>
+          <option value="in_progress">Em Progresso</option>
+          <option value="done">Concluída</option>
         </select>
         <button
           className="bg-orange-400 text-black p-2 rounded-lg cursor-pointer"
-          type="reset"
+          type="button"
           disabled={!title && !description}
           onClick={() => {
             setTitle("");
             setDescription("");
-            setStatus("Pendente");
+            setStatus("pending");
           }}
         >
           Limpar Campos
@@ -72,7 +88,7 @@ export function TarefasForm({ editingTarefa }: { editingTarefa: Tarefa | null })
           type="submit"
           disabled={!title || isLoading}
         >
-          Criar Tarefa
+          {editingTarefa ? "Atualizar Tarefa" : "Criar Tarefa"}
         </button>
       </form>
     </>
